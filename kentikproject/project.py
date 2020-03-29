@@ -2,18 +2,54 @@ import os
 import logging
 import argparse
 import pathlib
+from utils import json_format
 from validators import KentikDirectoryFormatFsm, verify_dir_tstamp, find_expired
 
 
+def parse_args():
+
+    # Create the parser
+    parser = argparse.ArgumentParser(description='Kentik File Cleaner')
+
+    # Add the arguments
+    parser.add_argument('--root-path',
+                        type=str,
+                        required=True,
+                        help='root path to search for deletion')
+
+    parser.add_argument('--set-nice',
+                        type=int,
+                        required=False,
+                        default=10,
+                        help='set the nice value, by default 10, it has less \
+                              priority over other running processes')
+
+    parser.add_argument('--verbose',
+                        action='store_true',
+                        help='set logging to DEBUG')
+
+
+    parser.add_argument('--dryrun',
+                        action='store_true',
+                        help="Don't delete, just show me marked for deletion")
+
+    # Execute the parse_args() method
+    return parser.parse_args()
+
 def main():
 
-    # User specifies a directory to search
-    root = pathlib.Path('/tmp/data/')
+    args = parse_args()
 
-    # identify all files in user directiory
+    # Set the nice value (set default 10)
+    os.nice(args.set_nice)
+
+    # User specifies a directory to search
+    root = pathlib.Path(args.root_path)
+
+    # identify all files in the path
     file_generator =  (file for file in root.rglob('*') if file.is_file())
 
-    # Initilaize Finite State Machine for directory structure
+    # Initialize Finite State Machine for dir structure
     kentik_fsm = KentikDirectoryFormatFsm()
 
     # Process all files and FSM will filter files only matching the defined FSM
@@ -31,7 +67,12 @@ def main():
      # custom retention policy per client
     expired = find_expired(verified_files)
 
+    # Do not delete files but show me them along with metadata
+    if args.dry_run:
+        print(json_format(expired))
+        sys.exit()
+
     return expired
 
 if __name__ == "__main__":
-    print(main())
+    main()
