@@ -4,7 +4,7 @@ from collections import defaultdict
 from constants import RETENTION_CLIENTS_FILE, RETENTION_DAYS_DEFAULT
 
 
-def get_retentions(default=RETENTION_DAYS_DEFAULT,
+def get_client_retentions(default=RETENTION_DAYS_DEFAULT,
                clients_file=RETENTION_CLIENTS_FILE):
     """
         Get Client retentions and

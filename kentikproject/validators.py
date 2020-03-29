@@ -1,6 +1,7 @@
+import pathlib
 import textfsm
-from datetime import datetime
-
+from datetime import datetime, timedelta
+from retentions import get_client_retentions
 from constants import KENTIK_DIR_FORMAT_TEMPLATE
 
 
@@ -48,6 +49,7 @@ def tstamp_format_validator(fsm_header, fsm_result):
 
 
 def verify_dir_tstamp(fsm_header, fsm_results):
+
     verified_files = []
     for result in fsm_results:
         tstamp_checked = tstamp_format_validator(fsm_header=fsm_header,
@@ -62,4 +64,21 @@ def verify_dir_tstamp(fsm_header, fsm_results):
             )
     return verified_files
 
-    
+
+
+def find_expired(verified_files):
+
+    rets = get_client_retentions()
+    marked_for_del = []
+    # get files invalidates the retention period
+    for file in verified_files:
+        client = file["client"]
+        client_retention_days = timedelta(days=rets[client])
+
+        # check if file is older than the retention
+        now, file_tstamp =  datetime.utcnow(), file['tstamp']
+        if now - file_tstamp > client_retention_days:
+            # then mark for deletion
+            marked_for_del.append(file)
+
+    return marked_for_del
