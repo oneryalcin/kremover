@@ -1,0 +1,13 @@
+Value PreviousDirs ((\w+/)+)
+Value DataDir (data/)
+Value ClientName (\w+)
+Value DeviceId (\d+)
+Value Year (\d{4})
+Value Month ([0-1][0-9])
+Value Day ([0-3][0-9])
+Value Hour ([0-2][0-9])
+Value Minute ([0-6][0-9])
+Value FileName (\w+)
+
+Start
+  ^/${PreviousDirs}${DataDir}${ClientName}/${DeviceId}/${Year}/${Month}/${Day}/${Hour}/${Minute}/${FileName} -> Record
