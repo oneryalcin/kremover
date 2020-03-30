@@ -10,8 +10,12 @@ from kremover.validators import KentikDirectoryFormatFsm, verify_dir_tstamp, fin
 logging.basicConfig(format=LOGGING_FORMAT, level=logging.WARNING)
 logger = logging.getLogger('kremover')
 
-def parse_args():
 
+def parse_args():
+    """
+
+    :return:
+    """
     # Create the parser
     parser = argparse.ArgumentParser(description='Kentik File Cleaner')
 
@@ -32,13 +36,34 @@ def parse_args():
                         action='store_true',
                         help='set logging to DEBUG')
 
-
     parser.add_argument('--dryrun',
                         action='store_true',
                         help="Don't delete, just show me marked for deletion")
 
     # Execute the parse_args() method
     return parser.parse_args()
+
+
+def delete_dir_if_empty(pth):
+    """
+
+    :param pth: pathlib.Path
+    :return:
+    """
+    for child in pth.parent.rglob("*"):
+        logger.debug('Checking file %s', child)
+        if child.is_file():
+            logger.info('It is a file not dir, breaking %s', child)
+            return None
+    # if pth.is_file():
+    #     pth = pth.parent
+    logger.debug('Directory %s is empty, removing', pth)
+    try:
+        pth.rmdir()
+    except FileNotFoundError:
+        logger.exception("Skipping as the file %s deleted before", pth)
+    delete_dir_if_empty(pth.parent)
+
 
 def main():
 
@@ -56,7 +81,7 @@ def main():
     root = pathlib.Path(args.root_path)
 
     # identify all files in the path
-    file_generator =  (file for file in root.rglob('*') if file.is_file())
+    file_generator = (file for file in root.rglob('*') if file.is_file())
 
     # Initialize Finite State Machine for dir structure
     kentik_fsm = KentikDirectoryFormatFsm()
@@ -72,8 +97,8 @@ def main():
     verified_files = verify_dir_tstamp(fsm_header=kentik_fsm.header,
                                        fsm_results=fsm_results)
 
-     # identify files marked for deletion (Don't delete yet), considering
-     # custom retention policy per client
+    # identify files marked for deletion (Don't delete yet), considering
+    # custom retention policy per client
     expired = find_expired(verified_files)
 
     # Do not delete files but show me them along with metadata
@@ -81,7 +106,15 @@ def main():
         print(json_format(expired))
         sys.exit()
 
-    return expired
+    # Delete expired files and recursively parent dirs if empty
+    for file in expired:
+        pth = file['path']
+        logger.debug('Unlinking File %s', pth)
+        pth.unlink()
+
+        logger.debug('Attempting to remove parent directory if empty')
+        delete_dir_if_empty(pth)
+
 
 if __name__ == "__main__":
     main()

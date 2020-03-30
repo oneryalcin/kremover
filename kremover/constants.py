@@ -10,8 +10,7 @@ RETENTION_DAYS_DEFAULT = 30
 # Clients with non default retention period are defined in this file
 RETENTION_CLIENTS_FILE = cur_dir / "retentions" / "retentions.json"
 
-
-## TEXT PARSERS
+# TEXT PARSERS
 # Directory parser is a Text Finite State Machine to identify
 # correct data directories conforming to the format
 

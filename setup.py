@@ -6,11 +6,10 @@ setup(
     author='M. Oner Yalcin',
     author_email='oneryalcin@gmail.com',
     packages=['kremover'],
-    # scripts=['bin/script1', 'bin/script2'],
-    # url='http://pypi.python.org/pypi/PackageName/',
-    # license='LICENSE.txt',
-    description='Library for removing exired Kentik client data',
-    # long_description=open('README.txt').read(),
+    entry_points = {
+        'console_scripts': ['kremover-console=kremover.console:main'],
+    }, 
+    description='Library for removing expired Kentik client data',
     install_requires=[
         "textfsm == 1.1.0",
     ],
