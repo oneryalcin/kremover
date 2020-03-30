@@ -1,10 +1,14 @@
 import os
+import sys
 import logging
 import argparse
 import pathlib
-from utils import json_format
-from validators import KentikDirectoryFormatFsm, verify_dir_tstamp, find_expired
+from kremover.constants import LOGGING_FORMAT
+from kremover.utils import json_format
+from kremover.validators import KentikDirectoryFormatFsm, verify_dir_tstamp, find_expired
 
+logging.basicConfig(format=LOGGING_FORMAT, level=logging.WARNING)
+logger = logging.getLogger('kremover')
 
 def parse_args():
 
@@ -40,6 +44,11 @@ def main():
 
     args = parse_args()
 
+    # Set log level to DEBUG if verbose is set
+    if args.verbose:
+        level = logging.getLevelName('DEBUG')
+        logger.setLevel(level)
+
     # Set the nice value (set default 10)
     os.nice(args.set_nice)
 
@@ -68,7 +77,7 @@ def main():
     expired = find_expired(verified_files)
 
     # Do not delete files but show me them along with metadata
-    if args.dry_run:
+    if args.dryrun:
         print(json_format(expired))
         sys.exit()
 

@@ -1,8 +1,11 @@
 import json
+import logging
 from collections import defaultdict
 
-from constants import RETENTION_CLIENTS_FILE, RETENTION_DAYS_DEFAULT
+from kremover.constants import RETENTION_CLIENTS_FILE, RETENTION_DAYS_DEFAULT
 
+# logging.basicConfig(format=LOGGING_FORMAT)
+logger = logging.getLogger(__name__)
 
 def get_client_retentions(default=RETENTION_DAYS_DEFAULT,
                clients_file=RETENTION_CLIENTS_FILE):
@@ -16,6 +19,8 @@ def get_client_retentions(default=RETENTION_DAYS_DEFAULT,
     # Get any specific retention details for clients
     with open(clients_file, 'r') as f:
         clients =  json.load(f)
+
+    logger.debug("Client retention policies loaded %s", clients)
 
     # After update below we have speicific retention days for
     # clients and a default retention days of 30 for any others
