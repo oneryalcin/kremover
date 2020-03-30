@@ -12,12 +12,14 @@ logger = logging.getLogger('kremover')
 
 
 def parse_args():
+    """Parse command line arguments
+
+    Returns:
+        args: (:obj:`ArgumentParser`)
     """
 
-    :return:
-    """
     # Create the parser
-    parser = argparse.ArgumentParser(description='Kentik File Cleaner')
+    parser = argparse.ArgumentParser(description='Kentik File Remover')
 
     # Add the arguments
     parser.add_argument('--root-path',
@@ -45,10 +47,13 @@ def parse_args():
 
 
 def delete_dir_if_empty(pth):
-    """
+    """Recursively removes empty directories.
 
-    :param pth: pathlib.Path
-    :return:
+    Args:
+        pth: (:obj:`pathPathlib`)  direrctory or file path
+
+    Returns:
+        None
     """
     for child in pth.parent.rglob("*"):
         logger.debug('Checking file %s', child)

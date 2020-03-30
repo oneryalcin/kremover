@@ -9,8 +9,13 @@ logger = logging.getLogger(__name__)
 
 
 class FsmBase:
-    """
-        Generic Base class for TextFSM
+    """Generic Base class for TextFSM
+
+    TextFSM is used for finding directories and files that fits the template FSM
+
+    Args:
+        template_file: (:obj:`pathlib.Path`): TextFSM template file describing the directory tree structure
+
     """
 
     def __init__(self, template_file):
@@ -27,8 +32,8 @@ class FsmBase:
 
 
 class KentikDirectoryFormatFsm(FsmBase):
-    """
-        TextFSM parser for Kentik data directory Structure
+    """TextFSM parser for Kentik data directory Structure.
+
     """
 
     def __init__(self):
@@ -37,13 +42,19 @@ class KentikDirectoryFormatFsm(FsmBase):
 
 
 def tstamp_format_validator(fsm_header, fsm_result):
-    """
-    Validates the parsed directory structure for a given file
+    """Validates the parsed directory datetime structure for a given file.
 
-    Returns: dict()
-    :param fsm_header:
-    :param fsm_result:
-    :return:
+    KentikDirectoryFormatFsm does loose validation on directory structure. It checks based on regex in template file
+    However for example it will still allow month to be 16 as the regex for month is [0-1][0-9]. This module checks
+    the validity of datetime structure
+
+    Args:
+        fsm_header: (list) List of TextFSM attribute names
+        fsm_result: (list) List of TextFSM parsed attribute values for one path
+
+    Returns:
+        (dict): validity of the path based on datetime, datetime as `tstamp` and `client` id.
+
     """
     mapping = {key:val for key,val in zip(fsm_header, fsm_result)}
 
@@ -68,11 +79,18 @@ def tstamp_format_validator(fsm_header, fsm_result):
 
 
 def verify_dir_tstamp(fsm_header, fsm_results):
-    """
+    """Validates the parsed directory datetime structure for a given set of files/dirs.
 
-    :param fsm_header:
-    :param fsm_results:
-    :return:
+    KentikDirectoryFormatFsm does loose validation on directory structure. It checks based on regex in template file
+    However for example it will still allow month to be 16 as the regex for month is [0-1][0-9]. This module checks
+    the validity of datetime structure for all given results (Plural)
+
+    Args:
+        fsm_header: (list) List of TextFSM attribute names
+        fsm_results: (list) List of (list of TextFSM parsed attribute values for one path)
+
+    Returns:
+        (list): list of `tstamp_format_validator` validated dicts
     """
     logger.debug('\n---------VERIFYING DIRECTORY CONFORMITY TO TIMESTAMPS------------')
 
@@ -92,13 +110,19 @@ def verify_dir_tstamp(fsm_header, fsm_results):
     return verified_files
 
 
-def find_expired(verified_files):
-    """
+def find_expired(verified_files, retentions_policy=get_client_retentions()):
+    """Finds the files over retention time
 
-    :param verified_files:
-    :return:
+    Based on the tstamp and client retentions metadata, decides if the file should be marked for
+    deletion.
+
+    Args:
+        verified_files: (list) `verify_dir_tstamp` output for evaluation
+        retentions_policy: (dict) policy dict for retention days lookup for a given client
+
+    Returns:
+        (list) list of dict of (path, client, tstamp) where path is marked for deletion
     """
-    rets = get_client_retentions()
 
     logger.debug('\n---------IDENTIFYING EXPIRED FILES FOR DELETION-------------')
     marked_for_del = []
@@ -106,7 +130,7 @@ def find_expired(verified_files):
     for file in verified_files:
         client = file["client"]
         path = file['path']
-        client_retention_days = timedelta(days=rets[client])
+        client_retention_days = timedelta(days=retentions_policy[client])
         now, file_tstamp =  datetime.utcnow(), file['tstamp']
         age = now - file_tstamp
 

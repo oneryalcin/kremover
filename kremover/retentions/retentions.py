@@ -7,12 +7,15 @@ logger = logging.getLogger(__name__)
 
 
 def get_client_retentions(default=RETENTION_DAYS_DEFAULT, clients_file=RETENTION_CLIENTS_FILE):
-    """
-        Get Client retentions
+    """Client retentions policy
 
-        :param default:
-        :param clients_file:
-        :return:
+    Args:
+        default: (int) retention period in (days) by default for a regular client
+        clients_file: (:obj:`pathlib.Path`) Path to retentions file for clients have different than default
+                      retentions period
+
+    Returns:
+          (:obj: `collections.defaultdict`) lookup table for client retentions
     """
 
     # default retention time is RETENTION_DAYS_DEFAULT
