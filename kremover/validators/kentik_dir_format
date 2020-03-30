@@ -1,4 +1,4 @@
-Value PreviousDirs ((\w+/)+)
+Value PreviousDirs ((\/*[a-zA-Z0-9:]+)\/*)
 Value DataDir (data/)
 Value ClientName (\w+)
 Value DeviceId (\d+)
@@ -10,4 +10,4 @@ Value Minute ([0-6][0-9])
 Value FileName (\w+\.*\w*)
 
 Start
-  ^/${PreviousDirs}${DataDir}${ClientName}/${DeviceId}/${Year}/${Month}/${Day}/${Hour}/${Minute}/${FileName} -> Record
+  ^${PreviousDirs}${DataDir}${ClientName}/${DeviceId}/${Year}/${Month}/${Day}/${Hour}/${Minute}/${FileName} -> Record

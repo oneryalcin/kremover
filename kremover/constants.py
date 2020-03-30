@@ -1,4 +1,4 @@
-# All constants and referece to files are defined here
+# All constants and reference to files are defined here
 from pathlib import Path
 
 cur_dir = Path(__file__).parent

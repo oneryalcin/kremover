@@ -62,11 +62,11 @@ def delete_dir_if_empty(pth):
             return None
     # if pth.is_file():
     #     pth = pth.parent
-    logger.debug('Directory %s is empty, removing', pth)
+    logger.warning('Directory %s is empty, removing', pth)
     try:
         pth.rmdir()
     except FileNotFoundError:
-        logger.exception("Skipping as the file %s deleted before", pth)
+        logger.info("Skipping as the file %s deleted before", pth)
     delete_dir_if_empty(pth.parent)
 
 
@@ -81,6 +81,9 @@ def main():
 
     # Set the nice value (set default 10)
     os.nice(args.set_nice)
+
+    pid, nice_value = os.getpid(), os.nice(0)
+    logger.debug("Current process id: %d, Nice value for PID %d is %d", pid, pid, nice_value)
 
     # User specifies a directory to search
     root = pathlib.Path(args.root_path)
@@ -114,7 +117,7 @@ def main():
     # Delete expired files and recursively parent dirs if empty
     for file in expired:
         pth = file['path']
-        logger.debug('Unlinking File %s', pth)
+        logger.warning('Unlinking File %s', pth)
         pth.unlink()
 
         logger.debug('Attempting to remove parent directory if empty')
