@@ -57,16 +57,18 @@ def delete_dir_if_empty(pth):
     """
     for child in pth.parent.rglob("*"):
         logger.debug('Checking file %s', child)
+
         if child.is_file():
             logger.info('It is a file not dir, breaking %s', child)
             return None
-    # if pth.is_file():
-    #     pth = pth.parent
+
     logger.warning('Directory %s is empty, removing', pth)
+
     try:
         pth.rmdir()
     except FileNotFoundError:
         logger.info("Skipping as the file %s deleted before", pth)
+
     delete_dir_if_empty(pth.parent)
 
 

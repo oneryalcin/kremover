@@ -21,14 +21,19 @@ It supports:
  - Files validated in the previous step will be checked against retention period for that given client (or default 
    retention period if client does not have a custom retention policy)
  
-> Finite State Machine diagram of directory structure: 
+> Finite State Machine diagram of directory structure (click for bigger view): 
 ![Finite State Machine diagram](fsm.png "Finite State Machine")
 
 ## Installation
 
-Make sure you have python3.6 or over
-After cloning:
+Make sure you have python3.6 or newer.
 
+Clone repository:
+```
+git clone https://github.com/oneryalcin/kremover.git
+```
+
+Install
 ```
 pip install -e .
 ```
@@ -209,3 +214,26 @@ $ kremover-console --root-path=/tmp/data --dryrun --verbose --set-nice=19
 .. omited output
 ``` 
 
+## Setting custom retention period
+Clients with custom retention period are defined in `kremover/retentions/retentions.json`. Add/Change/Remove 
+
+```json
+{
+  "999": 90,
+  "123": 45,
+  "111": 60,
+  "500": 30
+}
+```
+
+`Client_ID` 999 has 90 days of retention. Default retention period is set at `kremover/constants.py`
+
+```python
+# ..
+
+# Different clients may have different retention periods
+# Default is 30 Days
+RETENTION_DAYS_DEFAULT = 30
+
+#..
+```
